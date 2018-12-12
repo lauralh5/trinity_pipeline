@@ -1,0 +1,43 @@
+#! /bin/bash
+
+## Reading the parameters
+
+PARAMS=$1
+INS_FOLDER=$(grep installation_folder $PARAMS | awk '{print $2}') 
+WORK_DIR=$(grep working_dir $PARAMS | awk '{print $2}')
+MAIN_FOLDER=$(grep main_folder $PARAMS | awk '{print $2}')
+NUM_SAMPLES=$(grep number_of_samples $PARAMS | awk '{print $2}')
+ACC_SAMPLES=()
+i=0
+j=1
+
+while [ $i -lt $NS ]
+do
+	ACC_SAMPLES[$i]=$(grep acc_samples$j $PARAMS | awk '{ print $2 }')
+	((i++))
+	((j++))
+done
+ 
+echo $ACC_SAMPLES[@]
+
+## Creating the working space:
+
+cd $WORK_DIR 
+mkdir $MAIN_FOLDER
+cd $MAIN_FOLDER
+mkdir samples results log
+cd samples
+mkdir sample_1 sample_2
+
+## Downloading the sample data
+
+i=1
+while [ $i -le $NUM_SAMPLES ]
+do
+	j=0
+	cd $WORK_DIR/$MAIN_FOLDER/samples/sample_$i
+	fastq-dump --split-files $ACC_SAMPLES[$j]
+	((i++))
+	((j++))
+done
+

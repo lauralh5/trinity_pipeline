@@ -1,0 +1,7 @@
+installation_folder: /home/bag2/opt/trinity_pipeline
+working_directory: /home/bag2/temp
+main_folder: GSE76939
+numer_of_samples: 2
+acc_sample1: SRR3105594
+acc_sample2: SRR3105596
+
