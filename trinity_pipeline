@@ -7,18 +7,11 @@ INS_FOLDER=$(grep installation_folder $PARAMS | awk '{print $2}')
 WORK_DIR=$(grep working_dir $PARAMS | awk '{print $2}')
 MAIN_FOLDER=$(grep main_folder $PARAMS | awk '{print $2}')
 NUM_SAMPLES=$(grep number_of_samples $PARAMS | awk '{print $2}')
-ACC_SAMPLES=()
-i=0
-j=1
+ACC_SAMPLES_1=$(grep acc_sample_1 $PARAMS | awk '{ print $2 }')
+ACC_SAMPLES_2=$(grep acc_sample_2 $PARAMS | awk '{ print $2 }')
 
-while [ $i -lt $NS ]
-do
-	ACC_SAMPLES[$i]=$(grep acc_samples$j $PARAMS | awk '{ print $2 }')
-	((i++))
-	((j++))
-done
- 
-echo $ACC_SAMPLES[@]
+echo ${ACC_SAMPLES_1}
+echo ${ACC_SAMPLES_2}
 
 ## Creating the working space:
 
@@ -29,15 +22,28 @@ mkdir samples results log
 cd samples
 mkdir sample_1 sample_2
 
+echo "Working directory built"
+
 ## Downloading the sample data
 
-i=1
-while [ $i -le $NUM_SAMPLES ]
-do
-	j=0
-	cd $WORK_DIR/$MAIN_FOLDER/samples/sample_$i
-	fastq-dump --split-files $ACC_SAMPLES[$j]
-	((i++))
-	((j++))
-done
+## Download and quality control for sample 1
+cd $WORK_DIR/$MAIN_FOLDER/samples/sample_1
+
+fastq-dump --split-files $ACC_SAMPLES_1
+echo "Sample 1 downloaded"
+
+fastqc ${ACC_SAMPLES_1}_1.fastq
+fastqc ${ACC_SAMPLES_1}_2.fastq
+echo "FQC sample_1 done"
+
+##Download and quality control for sample 2
+cd $WORK_DIR/$MAIN_FOLDER/samples/sample_2
+
+fastq-dump --split-files $ACC_SAMPLES_2
+echo "Sample 2 downloaded"
+
+fastqc ${ACC_SAMPLES_2}_1.fastq
+fastqc ${ACC_SAMPLES_2}_2.fastq
+echo "FQC sample_2 done"
+
 
