@@ -59,9 +59,11 @@ $OPT/TransDecoder-TransDecoder-v5.5.0/TransDecoder.LongOrfs -t Trinity.fasta
 
 echo "TransDecoder longORFs"
 
+Pfam-A.hmm.gz
 hmmpress Pfam-A.hmm
 hmmscan --cpu 8 --domtblout pfam.domtblout Pfam-A.hmm longest_orfs.pep
 
-$INS_FOLFER/TransDecoder-TransDecoder-v5.5.0/TransDecoder.Predict -t Trinity.fasta --retain_pfam_hits pfam.dombtblout 
+$OPT/TransDecoder-TransDecoder-v5.5.0/TransDecoder.Predict -t Trinity.fasta --retain_pfam_hits pfam.dombtblout 
 
 echo "TransDecoder Predict"
+
