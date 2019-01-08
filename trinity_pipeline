@@ -6,6 +6,7 @@ PARAMS=$1
 INS_FOLDER=$(grep installation_folder $PARAMS | awk '{print $2}') 
 WORK_DIR=$(grep working_dir $PARAMS | awk '{print $2}')
 MAIN_FOLDER=$(grep main_folder $PARAMS | awk '{print $2}')
+OPT=$(grep opt $PARAMS | awk '{print $2}')
 NUM_SAMPLES=$(grep number_of_samples $PARAMS | awk '{print $2}')
 ACC_SAMPLES_1=$(grep acc_sample_1 $PARAMS | awk '{ print $2 }')
 ACC_SAMPLES_2=$(grep acc_sample_2 $PARAMS | awk '{ print $2 }')
@@ -24,7 +25,6 @@ mkdir sample_1 sample_2
 
 echo "Working directory built"
 
-## Downloading the sample data
 
 ## Download and quality control for sample 1
 cd $WORK_DIR/$MAIN_FOLDER/samples/sample_1
@@ -46,4 +46,22 @@ fastqc ${ACC_SAMPLES_2}_1.fastq
 fastqc ${ACC_SAMPLES_2}_2.fastq
 echo "FQC sample_2 done"
 
+## Trinity: obtaining the transcripts sequences
+cd ../../results
 
+$OPT/trinityrnaseq-Trinity-v2.8.4/Trinity --seqType fq --max_memory 1G --left ../samples/sample_1/${ACC_SAMPLES_1}_1.fq, ../samples/sample_2/${ACC_SAMPLES_2}_1.fq --right ../samples/sample_1/${ACC_SAMPLES_1}_2.fq, ../samples/sample_2/${ACC_SAMPLES_2}_2.fq --CPU 4 --trimmomatic
+
+echo "Trinity done"
+
+## Transdecoder: identifying ORFs
+
+$OPT/TransDecoder-TransDecoder-v5.5.0/TransDecoder.LongOrfs -t Trinity.fasta
+
+echo "TransDecoder longORFs"
+
+hmmpress Pfam-A.hmm
+hmmscan --cpu 8 --domtblout pfam.domtblout Pfam-A.hmm longest_orfs.pep
+
+$INS_FOLFER/TransDecoder-TransDecoder-v5.5.0/TransDecoder.Predict -t Trinity.fasta --retain_pfam_hits pfam.dombtblout 
+
+echo "TransDecoder Predict"
