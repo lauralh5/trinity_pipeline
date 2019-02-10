@@ -4,17 +4,11 @@
 
 PARAMS=$1
 INS_FOLDER=$(grep installation_folder $PARAMS | awk '{print $2}') 
-echo $INS_FOLDER
 WORK_DIR=$(grep working_dir $PARAMS | awk '{print $2}')
-echo $WORK_DIR
 MAIN_FOLDER=$(grep main_folder $PARAMS | awk '{print $2}')
-echo $MAIN_FOLDER
-TRINITY=$(grep folder_trinity $PARAMS | awk '{print $2}')
-echo $TRINITY
+TRINITY=$(grep trinity $PARAMS | awk '{print $2}')
 TRANSDECODER=$(grep transdecoder $PARAMS | awk '{print $2}')
-echo $TRANSDECODER
 NUM_SAMPLES=$(grep number_of_samples $PARAMS | awk '{print $2}')
-echo $NUM_SAMPLES
 ACC_SAMPLES_1=$(grep acc_sample_1 $PARAMS | awk '{ print $2 }')
 ACC_SAMPLES_2=$(grep acc_sample_2 $PARAMS | awk '{ print $2 }')
 
@@ -36,7 +30,7 @@ echo ${ACC_SAMPLES_2}
 ## Download and quality control for sample 1
 ##cd $WORK_DIR/$MAIN_FOLDER/samples/sample_1
 
-##fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $ACC_SAMPLES_1
+##fastq-dump --split-files $ACC_SAMPLES_1
 ##echo "Sample 1 downloaded"
 
 ##fastqc ${ACC_SAMPLES_1}_1.fastq
@@ -45,8 +39,9 @@ echo ${ACC_SAMPLES_2}
 
 ## Download and quality control for sample 2
 ##cd $WORK_DIR/$MAIN_FOLDER/samples/sample_2
-
-##fastq-dump --defline-seq '@$sn[_$rn]/$ri' --split-files $ACC_SAMPLES_2
+##echo "Accesion number"
+##echo ${ACC_SAMPLES_2}
+##fastq-dump --split-files $ACC_SAMPLES_2
 ##echo "Sample 2 downloaded"
 
 ##fastqc ${ACC_SAMPLES_2}_1.fastq
@@ -56,21 +51,21 @@ echo ${ACC_SAMPLES_2}
 ## Trinity: obtaining the transcripts sequences
 cd $WORK_DIR/$MAIN_FOLDER/results
 
-##/$TRINITY/Trinity --seqType fq --left ../samples/sample_1/${ACC_SAMPLES_1}_1.fastq,../samples/sample_2/${ACC_SAMPLES_2}_1.fastq --right ../samples/sample_1/${ACC_SAMPLES_1}_2.fastq,../samples/sample_2/${ACC_SAMPLES_2}_2.fastq --CPU 4 --max_memory 1G --trimmomatic
+$TRINITY/Trinity --seqType fq --left ../samples/sample_1/${ACC_SAMPLES_1}_1.fq --right ../samples/sample_2/${ACC_SAMPLES_2}_1.fq --right ../samples/sample_1/${ACC_SAMPLES_1}_2.fq,../samples/sample_2/${ACC_SAMPLES_2}_2.fq --CPU 4 --trimmomatic
 
 echo "Trinity done"
 
 ## Transdecoder: identifying ORFs
 
-##$TRANSDECODER/TransDecoder.LongOrfs -t $WORK_DIR/$MAIN_FOLDER/results/trinity_out_dir/Trinity.fasta
+$TRANSDECODER/TransDecoder.LongOrfs -t Trinity.fasta
 
 echo "TransDecoder longORFs"
 
-hmmpress $WORK_DIR/$MAIN_FOLDER/results/Pfam-A.hmm
-hmmscan --cpu 8 --domtblout $WORK_DIR/$MAIN_FOLDER/results/pfam.domtblout $WORK_DIR/$MAIN_FOLDER/results/Pfam-A.hmm $WORK_DIR/$MAIN_FOLDER/results/Trinity.fasta.transdecoder_dir/longest_orfs.pep
+Pfam-A.hmm.gz
+hmmpress Pfam-A.hmm
+hmmscan --cpu 8 --domtblout pfam.domtblout Pfam-A.hmm longest_orfs.pep
 
-$TRANSDECODER/TransDecoder.Predict -t $WORK_DIR/$MAIN_FOLDER/results/trinity_out_dir/Trinity.fasta --retain_pfam_hits $INS_DIR/pfam.dombtblout
+$TRANSDECODER/TransDecoder.Predict -t Trinity.fasta --retain_pfam_hits pfam.dombtblout 
 
 echo "TransDecoder Predict"
-
 

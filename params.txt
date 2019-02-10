@@ -1,7 +1,8 @@
 installation_folder: /home/bag2/opt/trinity_pipeline
 working_directory: /home/bag2/temp
 main_folder: GSE76939
-opt: /home/bag2/opt
+folder_trinity: /home/bag2/opt/trinityrnaseq-Trinity-v2.8.4
+transdecoder: /home/bag2/opt/TransDecoder-TransDecoder-v5.5.0
 number_of_samples: 2
 acc_sample_1: SRR3105594
 acc_sample_2: SRR3105596
